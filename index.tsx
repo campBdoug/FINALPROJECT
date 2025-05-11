@@ -1,29 +1,40 @@
-import Link from "next/link";
-import styles from "./index.module.css";
+import Head from "next/head";
+import type { GetStaticProps, InferGetStaticPropsType, NextPage } from "next";
+import LocationsList from "@/components/locations-list";
+import dbConnect from "@/middleware/db-connect";
+import { findAllLocations } from "@/mongoose/locations/services";
 import { LocationType } from "@/mongoose/locations/schema";
-import { JSX } from "react";
 
-interface PropsInterface {
-  location: LocationType;
-}
+ const Home: NextPage = (
+ props: InferGetStaticPropsType<typeof getStaticProps>
+) => {
 
-const LocationsListItem = ({ location }: PropsInterface): JSX.Element | null => {
-  if (!location) {
-    return null;
-  }
-
-  return (
-    <li className={styles.root}>
-      <Link href={`/location/${location.location_id}`}>
-        <h2>
-          {location.name}
-          <small className={styles.details}>
-            {location.cuisine} in {location.borough}
-          </small>
-        </h2>
-      </Link>
-    </li>
-  );
+    const locations: LocationType[] = JSON.parse(props.data?.locations);
+    let title = `The Food Finder - Home`;
+    return (
+ <div>
+ <Head>
+ <title>{title}</title>
+ <meta name="description" content="The Food Finder - Home" />
+ </Head>
+ <h1>Welcome to the Food Finder!</h1>
+ <LocationsList locations={locations} />
+ </div>
+ );
 };
 
-export default LocationsListItem;
+ export const getStaticProps: GetStaticProps = async () => {
+ let locations: LocationType[] | [];
+ try {
+ await dbConnect();
+ locations = await findAllLocations();
+ } catch (err: any) {
+ return { notFound: true };
+ }
+ return {
+    props: {
+ data: { locations: JSON.stringify(locations) },
+ },
+ };
+};
+export default Home;
