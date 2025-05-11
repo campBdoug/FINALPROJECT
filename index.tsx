@@ -1,38 +1,29 @@
-import { LocationType } from "@/mongoose/locations/schema";
+import Link from "next/link";
 import styles from "./index.module.css";
+import { LocationType } from "@/mongoose/locations/schema";
 import { JSX } from "react";
+
 interface PropsInterface {
- location: LocationType;
+  location: LocationType;
 }
-const LocationDetail = (props: PropsInterface): JSX.Element => {
- let location = props.location;
- return (
- <div>
- {location && (
- <ul className={styles.root}>
- <li>
- <b>Address: </b>
- {location.address}
- </li>
- <li>
- <b>Zipcode: </b>
- {location.zipcode}
- </li>
- <li>
- <b>Borough: </b>
- {location.borough}
- </li>
- <li>
- <b>Cuisine: </b>
- {location.cuisine}
- </li>
- <li>
- <b>Grade: </b>
- {location.grade}
- </li>
- </ul>
- )}
- </div>
- );
+
+const LocationsListItem = ({ location }: PropsInterface): JSX.Element | null => {
+  if (!location) {
+    return null;
+  }
+
+  return (
+    <li className={styles.root}>
+      <Link href={`/location/${location.location_id}`}>
+        <h2>
+          {location.name}
+          <small className={styles.details}>
+            {location.cuisine} in {location.borough}
+          </small>
+        </h2>
+      </Link>
+    </li>
+  );
 };
-export default LocationDetail;
+
+export default LocationsListItem;
